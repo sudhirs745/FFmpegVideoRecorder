@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.SwitchCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -337,28 +338,44 @@ public class VideoRecorderRequestFragment extends Fragment {
         return Optional.absent();
     }
 
+    String TAG="123" ;
+
     private void launchVideoRecorder() {
         mErrorView = null;
         Optional<Integer> videoWidth = validateEmptyPositiveIntegerEditText(mVideoWidthEditText);
+
+        Log.e(TAG, "launchVideoRecorder: videoWidth "+ videoWidth );
+
         Optional<Integer> videoHeight = validateEmptyPositiveIntegerEditText(mVideoHeightEditText);
+        Log.e(TAG, "launchVideoRecorder:  videoHeight "+ videoHeight );
         Optional<Integer> videoBitrate =
                 validateEmptyPositiveIntegerEditText(mVideoBitrateEditText);
+        Log.e(TAG, "launchVideoRecorder: videoBitrate "+ videoBitrate );
         Optional<Integer> videoFrameRate =
                 validateEmptyPositiveIntegerEditText(mVideoFrameRateEditText);
-
-        Optional<Integer> audioSampleRate =
-                validateEmptyPositiveIntegerEditText(mAudioSampleRateEditText);
+        Log.e(TAG, "launchVideoRecorder: videoFrameRate "+ videoFrameRate );
+        Optional<Integer> audioSampleRate = validateEmptyPositiveIntegerEditText(mAudioSampleRateEditText);
+        Log.e(TAG, "launchVideoRecorder: audioSampleRate "+ audioSampleRate );
         Optional<Integer> audioBitrate =
                 validateEmptyPositiveIntegerEditText(mAudioBitrateEditText);
+        Log.e(TAG, "launchVideoRecorder: audioBitrate "+ audioBitrate );
+
         Optional<Integer> audioChannelCount =
                 validateEmptyPositiveIntegerEditText(mAudioChannelCountEditText);
+        Log.e(TAG, "launchVideoRecorder: audioChannelCount "+ audioChannelCount );
 
         Optional<Integer> minRecordingSeconds =
                 validateEmptyPositiveIntegerEditText(mMinRecordingEditText);
+        Log.e(TAG, "launchVideoRecorder: minRecordingSeconds "+ minRecordingSeconds );
+
         Optional<Integer> maxRecordingSeconds =
                 validateEmptyPositiveIntegerEditText(mMaxRecordingEditText);
+        Log.e(TAG, "launchVideoRecorder: maxRecordingSeconds "+ maxRecordingSeconds );
+
         Optional<Integer> maxFileSizeMegaBytes =
                 validateEmptyPositiveIntegerEditText(mMaxFileSizeEditText);
+        Log.e(TAG, "launchVideoRecorder: maxFileSizeMegaBytes "+ maxFileSizeMegaBytes );
+
 
         if (mErrorView != null) {
             mErrorView.requestFocus();
@@ -381,8 +398,7 @@ public class VideoRecorderRequestFragment extends Fragment {
                 .setVideoImageScale((ImageScale) mVideoScaleDirectionSpinner.getSelectedItem())
                 .setShouldCropVideo(mVideoCanCropSwitch.isChecked())
                 .setShouldPadVideo(mVideoCanPadSwitch.isChecked())
-                .setVideoCameraFacing(
-                        (CameraControllerI.Facing) mVideoCameraFacingSpinner.getSelectedItem())
+                .setVideoCameraFacing((CameraControllerI.Facing) mVideoCameraFacingSpinner.getSelectedItem())
 
                 .setAudioCodec((AudioCodec) mAudioCodecSpinner.getSelectedItem())
                 .setAudioSamplingRateHz(audioSampleRate)
@@ -390,7 +406,11 @@ public class VideoRecorderRequestFragment extends Fragment {
                 .setAudioChannelCount(audioChannelCount)
 
                 .setOutputFormat((OutputFormat) mOutputFormatSpinner.getSelectedItem());
+        Log.e(TAG, "launchVideoRecorder: (VideoCodec) mVideoCodecSpinner.getSelectedItem()" + (VideoCodec) mVideoCodecSpinner.getSelectedItem() );
+        Log.e(TAG, "launchVideoRecorder: (VideoCodec) mVideoScaleFitSpinner()" + (ImageFit) mVideoScaleFitSpinner.getSelectedItem() );
+        Log.e(TAG, "launchVideoRecorder:c " + (CameraControllerI.Facing) mVideoCameraFacingSpinner.getSelectedItem() );
 
+        Log.e(TAG, "launchVideoRecorder: "+(AudioCodec) mAudioCodecSpinner.getSelectedItem() );
         if (minRecordingSeconds.isPresent()) {
             paramsBuilder.interactionParamsBuilder().setMinRecordingMillis(
                     (int) TimeUnit.SECONDS.toMillis(minRecordingSeconds.get()));

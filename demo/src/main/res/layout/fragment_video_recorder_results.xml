@@ -26,4 +26,11 @@
         android:layout_height="wrap_content"
         android:text="@string/delete_all"/>
 
+
+    <Button
+        android:id="@+id/post"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="post"/>
+
 </LinearLayout>

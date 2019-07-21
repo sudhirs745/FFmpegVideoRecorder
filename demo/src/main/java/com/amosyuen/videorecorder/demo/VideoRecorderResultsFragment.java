@@ -2,6 +2,7 @@ package com.amosyuen.videorecorder.demo;
 
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -20,14 +21,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amosyuen.videorecorder.activity.FFmpegPreviewActivity;
 import com.amosyuen.videorecorder.activity.params.FFmpegPreviewActivityParams;
+import com.amosyuen.videorecorder.demo.network.ApiService;
+import com.amosyuen.videorecorder.demo.network.RetrofitInstance;
 import com.amosyuen.videorecorder.recorder.params.EncoderParamsI;
+import com.google.gson.JsonObject;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.Serializable;
@@ -36,6 +46,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.media.MediaFormat.KEY_MIME;
 import static android.media.MediaFormat.MIMETYPE_AUDIO_AAC;
@@ -77,6 +94,12 @@ public class VideoRecorderResultsFragment extends Fragment {
 
     private VideoFileAdapter mVideoFileAdapter;
 
+    ProgressDialog dialog ;
+
+    File  fileTumb ;
+    File VideoFileVodeo ;
+
+    RetrofitInstance retrofitInstance ;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +123,11 @@ public class VideoRecorderResultsFragment extends Fragment {
                 .showLastDivider()
                 .build());
 
+
+
+
+        this.retrofitInstance = new RetrofitInstance();
+
         AppCompatButton deleteAllButton = (AppCompatButton) view.findViewById(R.id.delete_all);
         deleteAllButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -119,6 +147,37 @@ public class VideoRecorderResultsFragment extends Fragment {
             }
         });
 
+        CategoryDatalist();
+        Button post = view.findViewById(R.id.post);
+        post.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                uploadFile(VideoFileVodeo,
+                        "70",
+                        "123Test",
+                        "123",
+                        "1",
+                        "11,2",
+                        "1.54",
+                        "1",
+                        "1",
+                        "1",
+                        "1",
+                        "0",
+                        "0",
+                        "1",
+                        "0",
+                        "1"
+                );
+
+
+
+            }
+        });
+
+
         return view;
     }
 
@@ -129,7 +188,14 @@ public class VideoRecorderResultsFragment extends Fragment {
     }
 
     public void addVideoFile(VideoFile videoFile) {
+
+        Log.e("reViwo" ,  videoFile.getVideoFile().getAbsolutePath()+ " ") ;
+
+       fileTumb= videoFile.getThumbnailFile();
+      VideoFileVodeo = videoFile.getVideoFile();
         mVideoFileAdapter.addVideoFile(videoFile);
+
+        Log.e("data... ", "addVideoFile: " +  fileTumb + "  "  + VideoFileVodeo );
         mRecyclerView.smoothScrollToPosition(0);
     }
 
@@ -167,6 +233,8 @@ public class VideoRecorderResultsFragment extends Fragment {
             // Try reading the file. Delete unreadable files.
             MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
             try {
+
+                Log.e("Video FILe", videoFile.getVideoFile().getAbsolutePath() + " " ) ;
                 metadataRetriever.setDataSource(videoFile.getVideoFile().getAbsolutePath());
                 mVideoFileAdapter.mVideoFiles.add(videoFile);
             } catch (Exception e) {
@@ -414,5 +482,265 @@ public class VideoRecorderResultsFragment extends Fragment {
                 }
             }
         }
+    }
+
+
+    private void uploadFile(
+            File      file,
+            String    user_id1,
+            String    title1,
+            String    description1,
+            String    type1,
+            String    latitute1,
+            String    longitute1,
+            String    counry_id1,
+            String    state_id1,
+            String    city_id1,
+            String    view_status1,
+            String    can_likes1,
+            String    can_comment1,
+            String    category1,
+            String    can_shared1,
+            String    audio_id1 ) {
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("video/mp4"), file);
+        MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("video_clip", file.getName(), requestBody);
+
+        RequestBody requestBody1 = RequestBody.create(MediaType.parse("image/jpeg"), fileTumb);
+        MultipartBody.Part fileToUpload1 = MultipartBody.Part.createFormData("thumbfile", fileTumb.getName(), requestBody1);
+
+
+
+        RequestBody user_id = RequestBody.create(
+                MediaType.parse("text/plain"),
+                user_id1);
+        RequestBody title = RequestBody.create(
+                MediaType.parse("text/plain"),
+                title1);
+        RequestBody description = RequestBody.create(
+                MediaType.parse("text/plain"),
+                description1);
+
+        RequestBody type = RequestBody.create(
+                MediaType.parse("text/plain"),
+                type1);
+
+        RequestBody latitute = RequestBody.create(
+                MediaType.parse("text/plain"),
+                latitute1);
+        RequestBody longitute = RequestBody.create(
+                MediaType.parse("text/plain"),
+                longitute1);
+        RequestBody counry_id = RequestBody.create(
+                MediaType.parse("text/plain"),
+                counry_id1);
+        RequestBody state_id = RequestBody.create(
+                MediaType.parse("text/plain"),
+                state_id1);
+
+        RequestBody city_id = RequestBody.create(
+                MediaType.parse("text/plain"),
+                city_id1);
+        RequestBody view_status = RequestBody.create(
+                MediaType.parse("text/plain"),
+                view_status1);
+        RequestBody can_likes = RequestBody.create(
+                MediaType.parse("text/plain"),
+                can_likes1);
+        RequestBody can_comment = RequestBody.create(
+                MediaType.parse("text/plain"),
+                can_comment1);
+
+        RequestBody category = RequestBody.create(
+                MediaType.parse("text/plain"),
+                category1);
+        RequestBody can_shared = RequestBody.create(
+                MediaType.parse("text/plain"),
+                can_shared1);
+        RequestBody audio_id = RequestBody.create(
+                MediaType.parse("text/plain"),
+                audio_id1);
+
+
+        dialog = new ProgressDialog(getActivity());
+        dialog.setMessage("please wait...");
+        dialog.show();
+
+        retrofitInstance
+                .getAPI()
+                .Videoupload(
+                user_id,
+                fileToUpload,
+                fileToUpload1,
+                title,
+                description,
+                type,
+                latitute,
+                longitute,
+                counry_id,
+                state_id,
+                city_id,
+                view_status,
+                can_likes,
+                can_comment,
+                category,
+                can_shared,
+                audio_id
+        ).enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                String data = response.body().toString();
+                Log.e("data.. ", data) ;
+                 dialog.dismiss();
+                if (data != null && data!= null) {
+
+                    try {
+                        JSONObject jsonObject = new JSONObject(data);
+                        String status = jsonObject.getString("status");
+
+                        if (status.equalsIgnoreCase("1")) {
+                            JSONArray jsonArray = jsonObject.getJSONArray("response");
+
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject jsonObjecjt1 = jsonArray.getJSONObject(i);
+                                String catId = jsonObjecjt1.getString("id");
+                                String category_name = jsonObjecjt1.getString("name");
+                                Log.e("name ",  "onResponse: " + category_name );
+
+
+                            }
+
+
+                        }
+
+                        //   loginView.postLoginCallBack(status,data,1);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getActivity(), "something wrong please try again", Toast.LENGTH_LONG).show();
+
+
+                        //  loginView.postLoginCallBack("0","something wrong please try again ",0);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                 dialog.dismiss();
+                Log.e("error", "onFailure: " +  t.toString() );
+                Toast.makeText(getActivity(), "something wrong please try again", Toast.LENGTH_LONG).show();
+
+//                        Log.e("error",t.toString());
+//                        loginView.postLoginCallBack("0","something wrong please try again ",0);
+            }
+        });
+
+//        call.enqueue(new Callback<JsonObject>() {
+//            @Override
+//            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+//
+//                Log.e("response", "Getting response from server : " + response.raw().toString());
+//
+//                if (response.isSuccessful()) {
+//                    dialog.dismiss();
+//                    Log.d("response", "Getting response from server : " + response.body().toString());
+//                    String getResponse = response.body().toString();
+//                    try {
+//                        JSONObject jsonObject = new JSONObject(getResponse);
+//                        String message = jsonObject.getString("status");
+//                        String responseMessage = jsonObject.getString("response");
+//
+//                        if (message.equals("1")) {
+//                            dialog.dismiss();
+//
+//                            Toast.makeText(getActivity(), responseMessage,Toast.LENGTH_LONG).show();
+//
+//
+//
+//
+//                        } else {
+//                            Toast.makeText(getActivity(), responseMessage,Toast.LENGTH_LONG).show();
+//                            dialog.dismiss();
+//                            //  Toasty.error(CreateChannel.this, "Database Error", Toast.LENGTH_LONG, true).show();
+//                        }
+//                    } catch (JSONException e) {
+//                        Log.e("error maeeage ", e.toString());
+//                        e.printStackTrace();
+//                    }
+//
+//                    Log.d("Gett", response.body().toString());
+//                    Log.d("Gett", response.raw().toString());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<JsonObject> call, Throwable t) {
+//                dialog.dismiss();
+//                Log.e(" onFailure message .. " , t.toString()) ;
+//
+//            }
+//
+//        });
+
+
+    }
+
+
+
+    public void  CategoryDatalist() {
+       // dialog.show();
+        retrofitInstance
+                .getAPI()
+                .VideoCategory()
+                .enqueue(new Callback<JsonObject>() {
+                    @Override
+                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                        String data = response.body().toString();
+                        Log.e("data.. ", data) ;
+                       // dialog.dismiss();
+                        if (data != null && data!= null) {
+
+                            try {
+                                JSONObject jsonObject = new JSONObject(data);
+                                String status = jsonObject.getString("status");
+
+                                if (status.equalsIgnoreCase("1")) {
+                                    JSONArray jsonArray = jsonObject.getJSONArray("response");
+
+                                    for (int i = 0; i < jsonArray.length(); i++) {
+                                        JSONObject jsonObjecjt1 = jsonArray.getJSONObject(i);
+                                        String catId = jsonObjecjt1.getString("id");
+                                        String category_name = jsonObjecjt1.getString("name");
+
+                                        Log.e("name ",  "onResponse: " + category_name );
+
+
+                                    }
+
+
+                                }
+
+                                //   loginView.postLoginCallBack(status,data,1);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Toast.makeText(getActivity(), "something wrong please try again", Toast.LENGTH_LONG).show();
+
+
+                                //  loginView.postLoginCallBack("0","something wrong please try again ",0);
+                            }
+
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<JsonObject> call, Throwable t) {
+                       // dialog.dismiss();
+                        Toast.makeText(getActivity(), "something wrong please try again", Toast.LENGTH_LONG).show();
+
+//                        Log.e("error",t.toString());
+//                        loginView.postLoginCallBack("0","something wrong please try again ",0);
+                    }
+                });
     }
 }

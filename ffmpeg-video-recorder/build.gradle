@@ -38,7 +38,6 @@ version = libraryVersion
 // TODO: Take a look at http://ph0b.com/android-studio-gradle-and-ndk-integration/
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.3'
 
     defaultConfig {
         minSdkVersion 14
